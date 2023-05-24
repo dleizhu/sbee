@@ -1,7 +1,6 @@
 from puzzle import Puzzle
 class State:
-    levels = ["Beginner", "Good Start", "Moving Up", "Good", "Solid", "Nice",
-              "Great", "Amazing", "Genius"]
+    
     def __init__(self, puzzle=Puzzle()):
         self.puzzle = puzzle
         self.score = 0
@@ -27,8 +26,25 @@ class State:
         self.words_used.append(word)
 
     def update_level(self):
-        # TODO
-        return
+        percent = self.score / sum(self.puzzle.get_word_points().values())
+        if percent >= 1:
+            self.level = "Queen Bee"
+        elif percent >= 0.7:
+            self.level = "Genius"
+        elif percent >= 0.5:
+            self.level = "Amazing"
+        elif percent >= 0.4:
+            self.level = "Great"
+        elif percent >= 0.25:
+            self.level = "Nice"
+        elif percent >= 0.15:
+            self.level = "Solid"
+        elif percent >= 0.08:
+            self.level = "Good"
+        elif percent >= 0.05:
+            self.level = "Moving Up"
+        elif percent >= 0.02:
+            self.level = "Good Start"
     
     def try_word(self, word):
         if word in self.words_used:
@@ -60,7 +76,12 @@ class State:
             print("Try a word:")
             word_try = input()
             if (word_try == 'q'):
-                print(f"Final score: {self.get_score()}")
+                print(f"Final score: {self.score}     Final level: {self.level}")
                 break
             else:
                 self.try_word(word_try.upper())
+            
+            if self.level == "Queen Bee":
+                print("You got all the words!")
+                print(f"Final score: {self.score}     Final level: {self.level}")
+                break
