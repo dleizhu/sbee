@@ -6,7 +6,10 @@ class Puzzle:
     def __init__(self, puzzle_num=1):
         url_tail = "answers" if puzzle_num == 0 else f"s/{puzzle_num}"
         url = "https://www.sbsolver.com/" + url_tail
+        self.pangrams = []
         self.letters, self.word_points = self.parse_url(url)
+        self.letters[0] += "*"
+        
     
     def parse_url(self, url):
         """
@@ -19,7 +22,7 @@ class Puzzle:
         
         Example:
             >>> parse_url(https://www.sbsolver.com/s/1)
-            "Wahorty", {"ARROW":5, ..., "YARROW":6}
+            [W, A, H, O, R, T, Y], {"ARROW":5, ..., "YARROW":6}
         """
         page = requests.get(url)
         soup = BeautifulSoup(page.content, "html.parser")
@@ -30,7 +33,7 @@ class Puzzle:
         word_points = {}
         for word_elem in word_elements:
             word_points[word_elem.text] = self.calc_word_points(word_elem)
-        return letters_str, word_points
+        return list(letters_str.upper()), word_points
 
     def calc_word_points(self, word_elem):
         """
@@ -59,7 +62,17 @@ class Puzzle:
             is_pangram = is_pangram = bool(word_elem.parent.find("td", class_="bee-note"))
             if is_pangram:
                 points += 7
+                self.pangrams.append(word_elem.text)
         return points
+    
+    def get_letters(self):
+        return self.letters
+    
+    def get_word_points(self):
+        return self.word_points
+    
+    def is_pangram(self, word):
+        return word in self.pangrams
 
     def print(self):
         print("letters: " + self.letters)
