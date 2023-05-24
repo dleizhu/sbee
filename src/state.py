@@ -66,9 +66,10 @@ class State:
         letters = puzzle.get_letters()
         while True:
             print(f"\nScore: {self.get_score()}   Level: {self.get_level()}")
-            if self.get_words_used():
-                print("Words used: ", end = "")
-                print(self.get_words_used())
+            # if self.get_words_used():
+            #     print("Words used: ", end = "")
+            #     print(self.get_words_used())
+            print("*"*30)
             for letter in letters:
                 print(letter, end=" ")
             print()
@@ -76,12 +77,14 @@ class State:
             print("Try a word:")
             word_try = input()
             if (word_try == 'q'):
-                print(f"Final score: {self.score}     Final level: {self.level}")
+                print("*"*30)
+                print(f"Final score: {self.score}     Final level: {self.level}\n\n")
                 break
             else:
                 self.try_word(word_try.upper())
             
             if self.level == "Queen Bee":
                 print("You got all the words!")
-                print(f"Final score: {self.score}     Final level: {self.level}")
+                print("*"*30)
+                print(f"Final score: {self.score}     Final level: {self.level}\n\n")
                 break
