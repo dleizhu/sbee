@@ -3,7 +3,8 @@ from state import State
 from datetime import datetime
 
 def main():
-    print("\nEnter the date (MM/DD/YY) of the sbee to solve!")
+    print("\nEnter the date of the sbee to solve!")
+    print("Date (MM/DD/YY): ", end = "")
     puzzle_date_str = input()
     puzzle_date = datetime.strptime(puzzle_date_str, "%m/%d/%y")
     first_date_str = "05/09/18"

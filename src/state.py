@@ -74,7 +74,7 @@ class State:
                 print(letter, end=" ")
             print()
             
-            print("Try a word:")
+            print("Try a word: ", end = "")
             word_try = input()
             if (word_try == 'q'):
                 print("*"*30)
