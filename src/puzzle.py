@@ -3,12 +3,12 @@ from bs4 import BeautifulSoup
 
 class Puzzle:
 
-    def __init__(self, puzzle_num=1):
+    def __init__(self, puzzle_num=0):
         url_tail = "answers" if puzzle_num == 0 else f"s/{puzzle_num}"
         url = "https://www.sbsolver.com/" + url_tail
         self.pangrams = []
         self.letters, self.word_points = self.parse_url(url)
-        self.letters[0] += "*"
+        # self.letters[0] += "*"
         
     
     def parse_url(self, url):
@@ -18,7 +18,7 @@ class Puzzle:
         Args:
             url (string): The URL to a sbsolver day
         Returns:
-            [<letters for the day (string)>, <word answers and point values (dict)>]
+            [[<letters for the day (list)>], {<word answers and point values (dict)>}]
         
         Example:
             >>> parse_url(https://www.sbsolver.com/s/1)
@@ -59,7 +59,7 @@ class Puzzle:
             points = 1
         elif word_len > 4:
             points = word_len
-            is_pangram = is_pangram = bool(word_elem.parent.find("td", class_="bee-note"))
+            is_pangram = bool(word_elem.parent.find("td", class_="bee-note"))
             if is_pangram:
                 points += 7
                 self.pangrams.append(word_elem.text)
