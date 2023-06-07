@@ -1,8 +1,11 @@
 from puzzle import Puzzle
 from state import State
+from hexagon import Hexagon, CenterHexagon, HEX_SIZE, HEX_HEIGHT, HEX_WIDTH, HEX_MARGIN
+from button import Button
 from datetime import datetime
 import argparse
 import pygame
+import math
 import sys
 
 pygame.init()
@@ -10,6 +13,9 @@ pygame.init()
 # colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+DARK_GREY = (50, 50, 50)
+LIGHT_GREY = (200, 200, 200)
+YELLOW = (255, 255, 0)
 
 # window
 WIDTH = 800
@@ -53,9 +59,55 @@ def graphical_version():
     WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("sbee")
     
-    startup_screen()
-    print("next screen") # TODO: remove
+    # Initialize game state
+    date_str = startup_screen()
+    puzzle_num = get_puzzle_num_from_date_string(date_str)
+    puzzle = Puzzle(puzzle_num)
+    state = State(puzzle)
+
+    # Initialize letters
+    letters = puzzle.get_letters()
+    hexagons = []
+    center_hexagon = CenterHexagon(WIDTH // 2, HEIGHT // 2, YELLOW, letters[0])
+    hexagons.append(center_hexagon)
+    for i in range(6):
+        angle_deg = 60 * i + 30 
+        angle_rad = math.radians(angle_deg)
+        hex_x = center_hexagon.x + (2 * HEX_SIZE + HEX_MARGIN) * math.cos(angle_rad)
+        hex_y = center_hexagon.y + (2 * HEX_SIZE + HEX_MARGIN) * math.sin(angle_rad)
+        hexagons.append(Hexagon(hex_x, hex_y, LIGHT_GREY, letters[i + 1]))
     
+    # Initialize shuffle button
+    shuffle_width = 120
+    shuffle_height = 40
+    shuffle_button = Button(WIDTH // 2 - shuffle_width // 2, HEIGHT - 60, shuffle_width, shuffle_height,
+                            "shuffle", YELLOW, LIGHT_GREY, FONT, BLACK, lambda: Hexagon.shuffle(hexagons[1:], letters[1:]))
+    
+    running = True
+    while running:
+        WINDOW.fill(DARK_GREY)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for hexagon in hexagons:
+                    if pygame.Rect(hexagon.x - HEX_SIZE, hexagon.y - HEX_SIZE,
+                                   HEX_WIDTH, HEX_HEIGHT).collidepoint(mouse_pos):
+                        print("hex clicked") # TODO: fill word box
+                    shuffle_button.handle_event(event)
+            elif event.type == pygame.KEYDOWN:
+                # TODO: allow typing
+                continue
+        
+        for hexagon in hexagons:
+            hexagon.draw(WINDOW)
+        shuffle_button.draw(WINDOW)
+        
+        pygame.display.flip()
+
     pygame.quit()
                 
 
@@ -83,7 +135,7 @@ def startup_screen():
                     if event.key == pygame.K_RETURN:
                         if text:
                             print("Date entered: " + text)
-                            # TODO logic
+                            return text
                             running = False
                         
                     elif event.key == pygame.K_BACKSPACE:
