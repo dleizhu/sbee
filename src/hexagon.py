@@ -21,15 +21,23 @@ class Hexagon:
         self.color = color
         self.letter = letter
     
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+    
+    def get_letter(self):
+        return self.letter
+    
     def set_letter(self, letter):
         self.letter = letter
 
     def draw(self, window):
+        self.text = FONT.render(self.letter, True, BLACK)
+        self.text_rect = self.text.get_rect(center=(self.x, self.y))
         pygame.draw.polygon(window, self.color, self.get_vertices())
-
-        text = FONT.render(self.letter, True, BLACK)
-        text_rect = text.get_rect(center=(self.x, self.y))
-        window.blit(text, text_rect)
+        window.blit(self.text, self.text_rect)
     
     def get_vertices(self):
         vertices = []
@@ -43,6 +51,7 @@ class Hexagon:
 
     @staticmethod
     def shuffle(surrounding_hexagons, surrounding_letters):
+        print("shuffling")
         random.shuffle(surrounding_letters)
         for i in range(len(surrounding_hexagons)):
             hex = surrounding_hexagons[i]

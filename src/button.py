@@ -16,7 +16,8 @@ class Button:
         text_rect = text_surface.get_rect(center=self.rect.center)
         window.blit(text_surface, text_rect)
 
-    def handle_event(self, event):
+    def handle_event(self, event, *args):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self.rect.collidepoint(event.pos):
-                self.action()
+                print(f"clicked {self.text}")
+                self.action(*args)

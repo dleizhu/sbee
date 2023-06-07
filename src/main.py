@@ -53,6 +53,12 @@ def command_line_version():
     state = State(puzzle)
     state.run_game()
 
+def delete_last_letter(word):
+    print("deleting")
+    if len(word[0]) > 0:
+        word[0] = word[0][:-1]
+        print(f"word is now {word[0]}")
+
 def graphical_version():
     global WINDOW
     
@@ -80,9 +86,21 @@ def graphical_version():
     # Initialize shuffle button
     shuffle_width = 120
     shuffle_height = 40
-    shuffle_button = Button(WIDTH // 2 - shuffle_width // 2, HEIGHT - 60, shuffle_width, shuffle_height,
-                            "shuffle", YELLOW, LIGHT_GREY, FONT, BLACK, lambda: Hexagon.shuffle(hexagons[1:], letters[1:]))
+    shuffle_button = Button(WIDTH // 2 - shuffle_width // 2 - 70, HEIGHT - 60, shuffle_width, shuffle_height,
+                            "shuffle", YELLOW, LIGHT_GREY, FONT, BLACK, Hexagon.shuffle)
     
+    #Initialize delete button
+    delete_width = 120
+    delete_height = 40
+    delete_button = Button(WIDTH // 2 + delete_width // 2 - 10, HEIGHT - 60, delete_width, delete_height,
+                           "delete", LIGHT_GREY, LIGHT_GREY, FONT, BLACK, delete_last_letter)
+
+    # Initialize word attempt
+    word = ""
+    word_box = pygame.Rect(0, 0, WIDTH, 100)
+    word_font = pygame.font.SysFont("arial", 32)
+
+    # Main game loop
     running = True
     while running:
         WINDOW.fill(DARK_GREY)
@@ -94,17 +112,35 @@ def graphical_version():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 for hexagon in hexagons:
-                    if pygame.Rect(hexagon.x - HEX_SIZE, hexagon.y - HEX_SIZE,
+                    if pygame.Rect(hexagon.get_x() - HEX_SIZE, hexagon.get_y() - HEX_SIZE,
                                    HEX_WIDTH, HEX_HEIGHT).collidepoint(mouse_pos):
-                        print("hex clicked") # TODO: fill word box
-                    shuffle_button.handle_event(event)
+                        print("hex clicked")
+                        word += hexagon.get_letter()
+                shuffle_button.handle_event(event, hexagons[1:], letters[1:])
+                word_container = [word]
+                delete_button.handle_event(event, word_container)
+                word = word_container[0]
             elif event.type == pygame.KEYDOWN:
-                # TODO: allow typing
-                continue
+                if event.key == pygame.K_BACKSPACE:
+                    word = word[:-1] # delete last character
+                else:
+                    word += event.unicode.upper() # Add pressed key to word attempt
         
+        # Draw word
+        word_surface = word_font.render(word, True, WHITE)
+        word_rect = word_surface.get_rect(center=(WIDTH // 2, word_box.y + word_box.height // 2))
+        pygame.draw.rect(WINDOW, DARK_GREY, word_box)
+        WINDOW.blit(word_surface, word_rect)
+
+        # Draw hexagons
         for hexagon in hexagons:
             hexagon.draw(WINDOW)
+
+        # Draw shuffle button
         shuffle_button.draw(WINDOW)
+
+        # Draw delete button
+        delete_button.draw(WINDOW)
         
         pygame.display.flip()
 
