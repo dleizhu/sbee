@@ -75,8 +75,12 @@ class State:
             #     print("Words used: ", end = "")
             #     print(self.get_words_used())
             print("*"*30)
-            for letter in letters:
-                print(letter, end=" ")
+            for i in range(len(letters)):
+                letter = letters[i]
+                if i == 0:
+                    print(letter + '*', end=" ")
+                else:
+                    print(letter, end=" ")
             print()
             
             print("Try a word: ", end = "")
