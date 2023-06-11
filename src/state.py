@@ -49,16 +49,21 @@ class State:
     def try_word(self, word):
         if word in self.words_used:
             print(f"Already got {word} :)")
+            return 0, False
         elif word in self.puzzle.get_word_points():
+            is_pangram = False
             points = self.puzzle.get_word_points()[word]
             if self.puzzle.is_pangram(word):
                 print("***Pangram!***")
+                is_pangram = True
             print(f"+{points}")
             self.inc_score(points)
             self.use_word(word)
             self.update_level()
+            return points, is_pangram
         else:
             print(f"{word} isn't right :(")
+            return -1, False
     
     def run_game(self):
         print("\nStarting game!\n")

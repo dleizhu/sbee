@@ -21,9 +21,10 @@ YELLOW = (255, 255, 0)
 WIDTH = 800
 HEIGHT = 600
 WINDOW = None
+FPS = 60
 
 # font
-FONT = pygame.font.SysFont("arial", 32)
+FONT = pygame.font.SysFont("calibri", 32)
 
 def main():
     parser = argparse.ArgumentParser(description='Sbee')
@@ -86,24 +87,36 @@ def graphical_version():
     # Initialize shuffle button
     shuffle_width = 120
     shuffle_height = 40
-    shuffle_button = Button(WIDTH // 2 - shuffle_width // 2 - 70, HEIGHT - 60, shuffle_width, shuffle_height,
+    shuffle_x = WIDTH // 2 - shuffle_width - 8
+    shuffle_y = HEIGHT - 60
+    shuffle_button = Button(shuffle_x, shuffle_y, shuffle_width, shuffle_height,
                             "shuffle", YELLOW, LIGHT_GREY, FONT, BLACK, Hexagon.shuffle)
-    
-    #Initialize delete button
+
+    # Initialize delete button
     delete_width = 120
     delete_height = 40
-    delete_button = Button(WIDTH // 2 + delete_width // 2 - 10, HEIGHT - 60, delete_width, delete_height,
-                           "delete", LIGHT_GREY, LIGHT_GREY, FONT, BLACK, delete_last_letter)
+    delete_x = WIDTH // 2 + 8
+    delete_y = HEIGHT - 60
+    delete_button = Button(delete_x, delete_y, delete_width, delete_height,
+                        "delete", LIGHT_GREY, LIGHT_GREY, FONT, BLACK, delete_last_letter)
+
 
     # Initialize word attempt
     word = ""
     word_box = pygame.Rect(0, 0, WIDTH, 100)
-    word_font = pygame.font.SysFont("arial", 32)
+    word_font = pygame.font.SysFont("calibri", 32)
+
+    # Initialize feedback variables
+    feedback_text = ""
+    feedback_timer = 0
 
     # Main game loop
+    clock = pygame.time.Clock()
     running = True
     while running:
+        clock.tick(FPS)
         WINDOW.fill(DARK_GREY)
+        score = state.get_score()
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -123,6 +136,23 @@ def graphical_version():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     word = word[:-1] # delete last character
+                elif event.key == pygame.K_RETURN:
+                    try_score, is_pangram = state.try_word(word)
+                    # Display feedback text
+                    feedback_text = ""
+                    if try_score == 0:
+                        feedback_text = f"Already got {word} :)"
+                    elif try_score > 0:
+                        feedback_text = f"+{try_score}!"
+                        if is_pangram:
+                            feedback_text = f"***Pangram! +{try_score}!***"
+                    elif try_score < 0:
+                        feedback_text = f"{word} isn't correct :("
+
+                    feedback_timer = FPS  # 1 seconds
+                    word = ""
+                    score = state.get_score()
+                    print(state.get_score())
                 else:
                     word += event.unicode.upper() # Add pressed key to word attempt
         
@@ -141,6 +171,18 @@ def graphical_version():
 
         # Draw delete button
         delete_button.draw(WINDOW)
+
+        # Draw feedback text
+        if feedback_timer > 0:
+            feedback_surface = FONT.render(feedback_text, True, WHITE)
+            feedback_rect = feedback_surface.get_rect(topright=(WIDTH - 10, 10))
+            WINDOW.blit(feedback_surface, feedback_rect)
+            feedback_timer -= 1
+        
+        # Draw score
+        score_text = FONT.render(f"Score: {score}", True, WHITE)
+        score_rect = score_text.get_rect(topleft=(10, 10))
+        WINDOW.blit(score_text, score_rect)
         
         pygame.display.flip()
 

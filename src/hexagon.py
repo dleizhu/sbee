@@ -11,7 +11,7 @@ HEX_MARGIN = 10
 # letter
 BLACK = (0, 0, 0)
 pygame.font.init()
-FONT = pygame.font.SysFont("arial", 24)
+FONT = pygame.font.SysFont("calibri", 24)
 
 class Hexagon:
 
